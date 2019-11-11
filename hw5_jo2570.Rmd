@@ -37,6 +37,8 @@ return(x)
 }
 
 iris_with_missing = map_df(iris_with_missing, replace_values)
+
+iris_with_missing
 ```
 
 
@@ -95,10 +97,10 @@ sim_results = rerun(10000, sim_regression(b1 = 0)) %>%
 sim_results
 ```
 
-Repeating the step above for beta1 = 1, 2, 3, 4, 5, 6: 
+Repeating the step above for beta1 = 0 and 1, 2, 3, 4, 5, 6: 
 ```{r}
 sim_results_2 = 
-  tibble(b1_2 = c(1,2,3,4,5,6)) %>% 
+  tibble(b1_2 = c(0,1,2,3,4,5,6)) %>% 
   mutate(
     output_lists = map(.x = b1_2, ~rerun(10000, sim_regression(b1 = .x))),
     estimate_dfs = map(output_lists, bind_rows)) %>% 
@@ -113,14 +115,14 @@ sim_results_2
 sim_results_2 %>% 
    mutate(
     p_value = as.numeric(case_when(
-      p_value <= 0.05 ~ "1",
-      p_value > 0.05 ~ "0"))) %>% 
+      p_value < 0.05 ~ "1",
+      p_value >= 0.05 ~ "0"))) %>% 
   group_by(b1_2) %>% 
   summarise(prop = mean(p_value)) %>%
-  ggplot(aes(x = b1_2, y = prop)) + geom_point() + geom_line() + labs(title = "Association between effect size and power", x = "True value of Beta_2", y = "Power of the test")
+  ggplot(aes(x = b1_2, y = prop)) + geom_point() + geom_line() + labs(title = "Association between effect size and power", x = "True value of Beta", y = "Power of the test")
 ```
 
-We see above that as the true value of beta increases, the proportion of times the null was rejected increases showing that as effect size increases the power of the test increases. 
+We see above that as the true value of beta increases, the proportion of times the null was rejected increases showing that as effect size increases the power of the test increases. The shape ofbthe graph is sigmoidal, but still shows a monotonic positive relationship. 
 
 
 Creating a plot showing the association between average estimate of Beta and true Beta: 
@@ -131,14 +133,17 @@ sim_results_2 %>%
   ggplot(aes(x = b1_2, y = prop)) + geom_point() + geom_line() + labs(title = "Association between average estimate of Beta and true Beta", x = "True value of Beta_2", y = "Average estimate of Beta")
 ```
 
+We see that when all values are included for the estimates value of beta and the true value have a perfectly positive linear relationship. 
+
+
 Creating a plot showing the association between average estimate of Beta and true Beta only for values where the null is rejected:  
 ```{r}
 sim_results_2 %>%
-  filter(p_value <= 0.05) %>% 
+  filter(p_value < 0.05) %>% 
   group_by(b1_2) %>% 
   summarise(prop = mean(b1_hat)) %>%
-  ggplot(aes(x = b1_2, y = prop)) + geom_point() + geom_line() + labs(title = "Association between Beta_hat and true Beta (H0 is rejected)", x = "True value of Beta_2", y = "Average estimate of Beta")
+  ggplot(aes(x = b1_2, y = prop)) + geom_point() + geom_line() + labs(title = "Association between Beta_hat and true Beta (H0 is rejected)", x = "True value of Beta", y = "Average estimate of Beta")
 ```
 
-We see that the average estimates of beta for values where H0 is rejected are not approximately equal to the true values of beta - the values start quite different, but get closer (more equal) as the true value of beta increases. 
+We see that the average estimates of beta for values where H0 is rejected (p_value < 0.05) are not approximately equal to the true values of beta - the values are equal at True Beta = 0, but start to deviate as the true value appraches 1, the deviation is greatest at one and the values get closer (more equal) as the true value of beta increases past 1. One could say that the estimated values are over estimated for all values excepet 0 and the overestimation decreases until we reach a true value of 6 where they are once again equal. 
 

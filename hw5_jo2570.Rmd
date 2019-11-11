@@ -122,6 +122,7 @@ sim_results_2 %>%
 
 We see above that as the true value of beta increases, the proportion of times the null was rejected increases showing that as effect size increases the power of the test increases. 
 
+
 Creating a plot showing the association between average estimate of Beta and true Beta: 
 ```{r}
 sim_results_2 %>%
@@ -129,7 +130,6 @@ sim_results_2 %>%
   summarise(prop = mean(b1_hat)) %>%
   ggplot(aes(x = b1_2, y = prop)) + geom_point() + geom_line() + labs(title = "Association between average estimate of Beta and true Beta", x = "True value of Beta_2", y = "Average estimate of Beta")
 ```
-
 
 Creating a plot showing the association between average estimate of Beta and true Beta only for values where the null is rejected:  
 ```{r}
@@ -140,5 +140,5 @@ sim_results_2 %>%
   ggplot(aes(x = b1_2, y = prop)) + geom_point() + geom_line() + labs(title = "Association between Beta_hat and true Beta (H0 is rejected)", x = "True value of Beta_2", y = "Average estimate of Beta")
 ```
 
-We see that the average estimates of beta for values where H0 is rejected are approximately equal to the true values of beta - the values get closer as the true value of beta increases. 
+We see that the average estimates of beta for values where H0 is rejected are not approximately equal to the true values of beta - the values start quite different, but get closer (more equal) as the true value of beta increases. 
 

@@ -60,7 +60,7 @@ plot1 = tidy_df %>%
   pivot_longer(week_1:week_8,
     names_to = "week",
     values_to = "obs") %>% 
-  ggplot(aes(x = week, y = obs, color = arm, group = subject_id)) + geom_line()
+  ggplot(aes(x = week, y = obs, color = arm, group = subject_id)) + geom_line() + labs(title = "Association between time and observations for each subject", x = "Time (weeks)", y = "Observations")
 
 plot1
 ```
